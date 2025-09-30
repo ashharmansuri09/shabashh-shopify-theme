@@ -1,0 +1,146 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  .custom-featured-products-list {
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    gap: 15px;
+}
+a.custom-featured-product-item-link {
+    display: block;
+}
+a.custom-featured-product-item-link img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+}
+h3.custom-featured-product-item-title {
+    margin: 5px 0;
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: 600;
+}
+h3.custom-featured-product-item-title a{
+    color: black;
+    text-decoration: none;
+}
+span.custom-featured-product-item-price-compare-at-price {
+    font-size: 16px;
+    color: gray;
+    text-decoration: line-through;
+    font-weight: 600;
+}
+span.custom-featured-product-item-price-sale,
+span.custom-featured-product-item-price-value {
+    color: green;
+    font-weight: 600;
+    font-size: 18px;
+}
+{%- endstyle -%}
+{% liquid
+  assign collection = section.settings.collection
+  assign heading_size = section.settings.heading_size
+  assign title = section.settings.title
+%}
+<section class="section-{{ section.id }}-padding">
+  <div class="page-width">
+    <h2 class="custom-featured-products-title inline-richtext {{ heading_size }}">{{ title }}</h2>
+    <div class="custom-featured-products-list">
+        {% for product in collection.products limit: 5 %}
+            <div class="custom-featured-product-item">
+               <a href="{{ product.url }}" class="custom-featured-product-item-link"> 
+                <img src="{{ product.featured_image | image_url: width: 250 }}" alt="{{ product.title }}" width="250" height="250">
+               </a>
+               <h3 class="custom-featured-product-item-title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+               <div class="custom-featured-product-item-price">
+                {% if product.compare_at_price > product.price %}
+                    <span class="custom-featured-product-item-price-compare-at-price">{{ product.compare_at_price | money_with_currency }}</span>
+                    <span class="custom-featured-product-item-price-sale">{{ product.price | money_with_currency }}</span>
+                {% else %}
+                    <span class="custom-featured-product-item-price-value">{{ product.price | money_with_currency }}</span>
+                {% endif %}
+               </div>
+               <div class="custom-featured-product-item-actions">
+                 {% render 'atc-button', product: product %}
+               </div>
+            </div>
+        {% endfor %}
+    </div>  
+</div>
+</section>
+
+{% schema %}
+{
+  "name": "Custom Featured Products",
+  "settings": [
+    {
+        "type": "inline_richtext",
+        "id": "title",
+        "default": "Custom Featured Products",
+        "label": "Title"
+    },
+    {
+        "type": "select",
+        "id": "heading_size",
+        "options": [
+          {
+            "value": "h2",
+            "label": "t:sections.all.heading_size.options__1.label"
+          },
+          {
+            "value": "h1",
+            "label": "t:sections.all.heading_size.options__2.label"
+          },
+          {
+            "value": "h0",
+            "label": "t:sections.all.heading_size.options__3.label"
+          },
+          {
+            "value": "hxl",
+            "label": "t:sections.all.heading_size.options__4.label"
+          },
+          {
+            "value": "hxxl",
+            "label": "t:sections.all.heading_size.options__5.label"
+          }
+        ],
+        "default": "h1",
+        "label": "t:sections.all.heading_size.label"
+      },
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": "Collection"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:sections.all.padding.padding_top",
+        "default": 36
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:sections.all.padding.padding_bottom",
+        "default": 36
+      }
+  ],
+  "presets": [
+    {
+      "name": "Custom Feature Product"
+    }
+  ]
+}
+{% endschema %}

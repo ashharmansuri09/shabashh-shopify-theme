@@ -1,0 +1,95 @@
+<script src="{{ 'custom-items.js' | asset_url }}" defer="defer"></script>
+{% style %}
+.custom-cart-drawer.custom-cart-drawer-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  transform:translateX(200%);
+  transition: transform 0.3s ease-in-out;
+}
+.custom-cart-drawer.is-active {
+  transform: translateX(0);
+}
+
+.drawer-open {
+  overflow: hidden; /* lock background scroll */
+}
+.custom-cart-drawer-inner {
+  background: white;
+  max-width: 375px;
+  width: 80%;
+  height: 100%;
+  padding: 0 15px;
+}
+  .custom-cart-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+.custom-cart-drawer-header h2 {
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+button.custom-cart-drawer-close{
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+button.custom-cart-drawer-close svg {
+    width: 20px;
+}
+.custom-cart-drawer-item-product-details > * {
+    margin: 0;
+}
+.custom-cart-drawer-item-product {
+    display: flex;
+    gap: 10px;
+}
+{% endstyle %}
+
+<custom-cart-drawer data-open-trigger="cart-icon-bubble" class="custom-cart-drawer custom-cart-drawer-overlay">
+    <div class="custom-cart-drawer-inner">
+        <div class="custom-cart-drawer-header">
+            <h2>Cart</h2>
+            <button data-close  class="custom-cart-drawer-close">
+               {% render 'icon-close-button' %}
+            </button>
+        </div>
+        <div class="custom-cart-drawer-body">
+            {% if cart.item_count > 0 %}
+                <div class="custom-cart-drawer-items-list">
+                      {% for item in cart.items %}
+                        <div class="custom-cart-drawer-item">
+                            <div class="custom-cart-drawer-item-product">
+                                <a href="{{ item.url }}" class="custom-cart-drawer-item-product-link">
+                                    <img src="{{ item.image | image_url: width: 70 }}" alt="{{ item.image.alt }}" width="70" height="70">
+                                </a>
+                                <div class="custom-cart-drawer-item-product-details">
+                                    <h4>{{ item.product.title }}</h4>
+                                    <p>{{ item.product.price | money }}</p>
+                                </div>
+                                <div class="custom-cart-drawer-item-product-quantity">
+                                    <p>{{ item.quantity }}</p>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                      {% endfor %}
+                </div>
+            {% else %}
+               <div class="custom-cart-drawer-empty">
+                <p>Your cart is empty</p>
+                <a href="{{ routes.all_products_collection_url }}" class="custom-cart-drawer-empty-button">Continue Shopping</a>
+               </div>
+            {% endif %}
+        </div>
+    </div>
+</custom-cart-drawer>

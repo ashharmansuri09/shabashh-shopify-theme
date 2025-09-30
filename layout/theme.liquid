@@ -303,9 +303,10 @@
       {{ 'accessibility.skip_to_text' | t }}
     </a>
 
-    {%- if settings.cart_type == 'drawer' -%}
+    {% comment %} {%- if settings.cart_type == 'drawer' -%}
       {%- render 'cart-drawer' -%}
-    {%- endif -%}
+    {%- endif -%} {% endcomment %}
+    {% render 'custom-cart-drawer' %}
 
     {% sections 'header-group' %}
 
