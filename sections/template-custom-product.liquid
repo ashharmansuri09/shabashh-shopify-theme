@@ -1,0 +1,328 @@
+{% style %}
+   .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    }
+    .custom-product-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr
+  }
+  /* .custom-product-images{
+      flex:1;
+  } */
+  .custom-product-images img.custom-product-images_main_img{
+     width:100%;
+         height: auto;
+  }
+  .custom-product-infos {
+      padding-left: 50px;
+  }
+  .custom-product-images{
+      display:grid;
+      grid-template-columns: 80px 1fr;
+      gap:15px;
+  }
+  .custom-thumbnail-item {
+      width: 80px;
+      height: 80px;
+  }
+  .custom-thumbnail-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+  }
+  span.custom-product-vendor {
+    text-transform: uppercase;
+    font-size: small;
+    font-weight: 600;
+    color: gray;
+}
+h2.custom-product-title {
+    margin: 0;
+    margin: 10px 0;
+    font-size: 48px;
+    font-weight: 800;
+}
+.custom-product-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+span.custom-product-price-sale {
+    background: lightgreen;
+    padding: 0 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+span.custom-product-price-value {
+    font-size: 22px;
+    color: green;
+    font-weight: 600;
+}
+span.custom-product-price-compare-at-price {
+    font-size: 23px;
+    font-weight: 800;
+    color: lightgray;
+    position: relative;
+
+}
+span.custom-product-price-compare-at-price::before{
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: red;
+}
+legend.product-form_option-name {
+    font-weight: 600;
+}
+fieldset.product-form_option {
+    border: 0;
+    padding-left: 0;
+    margin-left: 0;
+}
+.product-form_option-values input {
+    display: none;
+}
+.product-form_option-values label {
+    padding: 1rem 1.8rem;
+    border: 1px solid;
+    border-radius: 4px;
+    color: black;
+    cursor: pointer;
+    position: relative;
+
+}
+
+.product-form_option-values input:checked + label {
+    background: black;
+    color: white;
+}
+.product-form_option-values {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.out-of-stock {
+    opacity: 0.5;
+}
+label.line-strike-through::before{
+  position:absolute;
+  content: '';
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: red;
+}
+button.custom-product-add-to-cart {
+    display: block;
+    margin-top: 15px;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 10px;
+    max-width: 400px;
+    width: 100%;
+    background:#FF9900;
+    border: none;
+    cursor: pointer;
+}
+{% endstyle %}
+<section class="section-{{ section.id }}-padding">
+  <div class="page-width">
+    <div class="custom-product-main">
+      <div class="custom-product-images">
+        {% if product.media.size > 0 %}
+          <div class="custom-product-images_thumbnails">
+            {% render 'custom-product-thumbnails', product %}
+          </div>
+        {% endif %}
+
+        <div class="custom-product-images_main">
+          {% if product.selected_or_first_available_variant.featured_image %}
+            {% assign first_available_main_image = product.selected_or_first_available_variant.featured_image %}
+          {% else %}
+            {% assign first_available_main_image = product.featured_image %}
+          {% endif %}
+
+          <img
+            srcset="
+              {{ first_available_main_image | image_url: width: 360 }} 360w,
+              {{ first_available_main_image | image_url: width: 720 }} 720w,
+              {{ first_available_main_image | image_url: width: 1080 }} 1080w,
+              {{ first_available_main_image | image_url: width: 1440 }} 1440w
+            "
+            sizes="(max-width: 840px) 100vw, 50vw"
+            src="{{ first_available_main_image | image_url: width: 720 }}"
+            alt="{{ product.title }}"
+            width="720"
+            height="788"
+            loading="lazy"
+            class="custom-product-images_main_img"
+          >
+        </div>
+      </div>
+
+      <div class="custom-product-infos">
+        <span class="custom-product-vendor">{{ product.vendor }}</span>
+        <h2 class="custom-product-title">{{ product.title }}</h2>
+        <div class="custom-product-price">
+          <span class="custom-product-price-value">{{ product.selected_or_first_available_variant.price | money_without_trailing_zeros }}</span>
+          {% if 
+            product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price
+          %}
+            <span class="custom-product-price-compare-at-price">
+              {{- product.selected_or_first_available_variant.compare_at_price | money_without_trailing_zeros -}}
+            </span>
+            <span class="custom-product-price-sale">Sale</span>
+          {% endif %}
+        </div>
+        {% unless product.has_only_default_variant %}
+          <variant-picker data-section-id="{{ section.id }}">
+            {% for option in product.options_with_values %}
+              <fieldset class="product-form_option">
+                <legend class="product-form_option-name">
+                  {{ option.name }}
+                </legend>
+                <div class="product-form_option-values">
+                  {% for value in option.values %}
+                    <div class="product-form_option-value {% unless value.variant.available %}out-of-stock{% endunless %}">
+                    <input value="{{ value.variant.id }}" type="radio" id="{{ option.name }}-{{ value.name }}" 
+                      name="{{ option.name }}"
+                      {% if option.selected_value == value %} checked {% endif %}>
+                    <label for="{{ option.name }}-{{ value.name }}" class="{% unless value.variant.available %}line-strike-through{% endunless %}">{{ value.name }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </fieldset>
+            {% endfor %}
+          </variant-picker>
+        {% endunless %}
+
+        <div>
+          {% form 'product', product %}
+            {% comment %}
+              <variant-picker data-section-id="{{ section.id }}">
+                <select name="id">
+                  {% for variant in product.variants %}
+                    <option
+                      value="{{ variant.id }}"
+                      {% if variant == product.selected_or_first_available_variant %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ variant.title }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </variant-picker>
+            {% endcomment %}
+
+            <input type="text" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+            <input type="text" name="" value="1">
+            <button class="custom-product-add-to-cart"
+              type="submit"
+              {% unless product.selected_or_first_available_variant.available %}
+                disabled
+              {% endunless %}
+            >
+              {% if product.selected_or_first_available_variant.available %}
+                Add to Cart
+              {% else %}
+                Sold Out
+              {% endif %}
+            </button>
+          {% endform %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  class VariantPicker extends HTMLElement {
+    constructor() {
+      super();
+      console.log('variant-picker');
+    }
+    get sectionId() {
+      return this.dataset.sectionId;
+    }
+
+    connectedCallback() {
+      {% comment %} this.variantPiicker = this.querySelector('select[name=id]');
+      this.variantPiicker.addEventListener('change', this.handleChange.bind(this)); {% endcomment %}
+      this.variantSelector = this.querySelectorAll('input[type="radio"]');
+      this.handleChange = this.handleChange.bind(this);
+
+      this.variantSelector.forEach((selector)=>{
+        selector.addEventListener('change', this.handleChange.bind(this));
+      })
+    }
+
+    disconnectedCallback() {
+      this.variantSelector.forEach((selector)=>{
+        selector.removeEventListener('change', this.handleChange.bind(this));
+      })
+    }
+
+    handleChange(e) {
+      const select = e.currentTarget;
+      const url = `${window.location.pathname}?variant=${select.value}&section_id=${this.sectionId}`;
+      console.log(url, 'url');
+
+      fetch(url)
+        .then((response) => {
+          return response.text();
+        })
+        .then((html) => {
+          console.log(html, 'html');
+          const tempDiv = document.createElement('div');
+
+          // 2. Save HTML inside it
+          tempDiv.innerHTML = html;
+
+          // 3. Console log
+          console.log(tempDiv, 'tempDiv'); // logs the whole div element
+          console.log(tempDiv.innerHTML, 'html'); // logs the string content
+          document.querySelector('.custom-product-main').innerHTML =
+            tempDiv.querySelector('.custom-product-main').innerHTML;
+          const newUrl = new URL(url, window.location.origin);
+          newUrl.searchParams.delete('section_id');
+          window.history.pushState({}, '', newUrl.toString());
+        });
+    }
+  }
+  customElements.define('variant-picker', VariantPicker);
+</script>
+{% schema %}
+{
+  "name": "Custom Product",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,5 @@
+{% for image in product.images %}
+    <div class="custom-thumbnail-item">
+        <img src="{{ image | image_url:width:80 }}" alt="{{ image.alt }}" width="80" height="80">
+    </div>
+{% endfor %}    
