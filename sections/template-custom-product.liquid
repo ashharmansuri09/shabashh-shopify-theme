@@ -132,6 +132,21 @@ button.custom-product-add-to-cart {
     border: none;
     cursor: pointer;
 }
+.product-form_option-color label.product-form_option-value-swatch-img {
+    padding: 0;
+    width: 60px!important;
+    height: 60px!important;
+    display: block;
+    border:none;
+}
+.product-form_option-color input:checked + label.product-form_option-value-swatch-img {
+    border: 2px solid black;
+}
+label.product-form_option-value-swatch-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 {% endstyle %}
 <section class="section-{{ section.id }}-padding">
   <div class="page-width">
@@ -185,27 +200,53 @@ button.custom-product-add-to-cart {
         {% unless product.has_only_default_variant %}
           <variant-picker data-section-id="{{ section.id }}">
             {% for option in product.options_with_values %}
-              <fieldset class="product-form_option">
-                <legend class="product-form_option-name">
-                  {{ option.name }}
-                </legend>
-                <div class="product-form_option-values">
-                  {% for value in option.values %}
-                    <div class="product-form_option-value {% unless value.variant.available %}out-of-stock{% endunless %}">
-                    <input value="{{ value.variant.id }}" type="radio" id="{{ option.name }}-{{ value.name }}" 
-                      name="{{ option.name }}"
-                      {% if option.selected_value == value %} checked {% endif %}>
-                    <label for="{{ option.name }}-{{ value.name }}" class="{% unless value.variant.available %}line-strike-through{% endunless %}">{{ value.name }}</label>
+              <fieldset class="product-form_option {% if option.name == 'Color' %} product-form_option-color {% endif %}">
+                   {% if option.name == 'Color' %}
+                    <legend class="product-form_option-name">
+                      {{ option.name }}
+                    </legend>
+                    <div class="product-form_option-values">
+                      {% for value in option.values %}
+                        <div class="product-form_option-value {% unless value.variant.available %}out-of-stock{% endunless %}">
+                        <input value="{{ value.variant.id }}" type="radio" id="{{ option.name }}-{{ value.name }}" 
+                          name="{{ option.name }}"
+                          {% if option.selected_value == value %} checked {% endif %}>
+                          {% comment %} <label for="{{ option.name }}-{{ value.name }}" 
+                            class="{% unless value.variant.available %}line-strike-through{% endunless %} product-form_option-value-swatch-img">
+                             <img src="{{ value.swatch.image | image_url: width: 50 }}" alt="{{ value.name }}" width="50" height="50">
+                          </label> {% endcomment %}
+                        <label for="{{ option.name }}-{{ value.name }}" 
+                          class="{% unless value.variant.available %}line-strike-through{% endunless %}
+                          {% if value.variant.image %} product-form_option-value-swatch-img {% endif %}" 
+                          >
+                          <img src="{{ value.variant.image | image_url: width: 50 }}" alt="{{ value.name }}" width="50" height="50">
+                        </label>
+                        </div>
+                      {% endfor %}
                     </div>
-                  {% endfor %}
-                </div>
+                   {% else %}
+                    <legend class="product-form_option-name">
+                      {{ option.name }}
+                    </legend>
+                    <div class="product-form_option-values">
+                      {% for value in option.values %}
+                        <div class="product-form_option-value {% unless value.variant.available %}out-of-stock{% endunless %}">
+                        <input value="{{ value.variant.id }}" type="radio" id="{{ option.name }}-{{ value.name }}" 
+                          name="{{ option.name }}"
+                          {% if option.selected_value == value %} checked {% endif %}>
+                        <label for="{{ option.name }}-{{ value.name }}" class="{% unless value.variant.available %}line-strike-through{% endunless %}">{{ value.name }}</label>
+                        </div>
+                      {% endfor %}
+                    </div>
+                   {% endif %}
               </fieldset>
             {% endfor %}
           </variant-picker>
         {% endunless %}
 
         <div>
-          {% form 'product', product %}
+          {% render 'atc-button', product: product %}
+          {% comment %} {% form 'product', product %} {% endcomment %}
             {% comment %}
               <variant-picker data-section-id="{{ section.id }}">
                 <select name="id">
@@ -223,8 +264,8 @@ button.custom-product-add-to-cart {
               </variant-picker>
             {% endcomment %}
 
-            <input type="text" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-            <input type="text" name="" value="1">
+            {% comment %} <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+            <input type="hidden" name="quantity" value="1">
             <button class="custom-product-add-to-cart"
               type="submit"
               {% unless product.selected_or_first_available_variant.available %}
@@ -237,7 +278,7 @@ button.custom-product-add-to-cart {
                 Sold Out
               {% endif %}
             </button>
-          {% endform %}
+          {% endform %} {% endcomment %}
         </div>
       </div>
     </div>
