@@ -101,45 +101,45 @@ customElements.define("atc-button", AtcButton);
 class CartActions extends HTMLElement{
     constructor(){
         super();
-        this.minusBtn = this.querySelector("[data-minus]");
-        this.plusBtn = this.querySelector("[data-plus]");
+        this.minusButton = this.querySelector("[data-minus]");
+        this.plusButton = this.querySelector("[data-plus]");
+        this.removeButton = this.querySelector("[data-remove]");
     }
     connectedCallback(){
 
-        this.minusBtn.addEventListener("click",this.handleChange.bind(this));
-        this.plusBtn.addEventListener("click",this.handleChange.bind(this));
+      this.plusButton?.addEventListener('click', this.handleChange.bind(this));
+      this.minusButton?.addEventListener('click', this.handleChange.bind(this));
+      this.removeButton?.addEventListener('click', this.handleChange.bind(this));
     }
     handleChange(e){
-        e.preventDefault();
-        const formData = {
-            'line':this.dataset.line,
-            'quantity':e.target.dataset.quantity,
-            'sections':'custom-cart-drawer'
-        }
-        fetch(window.Shopify.routes.root + 'cart/change.js', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+       console.log("clicked working")
+       const formData = {
+        'line': parseInt(this.dataset.line, 10),
+        'quantity': parseInt(e.currentTarget.dataset.quantity, 10),
+        'sections':'custom-cart-drawer'
+       }
+       fetch(window.Shopify.routes.root + 'cart/change.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+       })
+       .then(response => {
+        return response.json();
+       })
+       .then(data => {
+        document.documentElement.dispatchEvent(
+          new CustomEvent('cart:refresh', {
+            detail: data,
+            bubbles: true,
           })
-          .then(response => {
-            return response.json();
-          })
-          .then(data => {
-           console.log(data);
-             document.documentElement.dispatchEvent(
-               new CustomEvent('cart:refresh', {
-                 detail: data,
-                 bubbles: true,
-               })
-             )
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
+        )
+       })
+       .catch((error) => {
+        console.error('Error:', error);
+       });
     }
-
 }
 customElements.define('cart-actions',CartActions)
 

@@ -95,6 +95,9 @@ button.custom-cart-drawer-remove-item {
     cursor: pointer;
     align-self: end;
 }
+cart-actions{
+    margin-left: auto;
+}
 {% endstyle %}
 
 <custom-cart-drawer data-open-trigger="cart-icon-bubble" class="custom-cart-drawer custom-cart-drawer-overlay">
@@ -108,7 +111,7 @@ button.custom-cart-drawer-remove-item {
 
         <div class="custom-cart-drawer-body">
             {% if cart.item_count > 0 %}
-                <div class="custom-cart-drawer-items-list">
+                <div class="custom-cart-drawer-items-list" data-line="{{ forloop.index }}">
                       {% for item in cart.items %}
                         <div class="custom-cart-drawer-item">
                             <div class="custom-cart-drawer-item-product">
@@ -123,11 +126,11 @@ button.custom-cart-drawer-remove-item {
                                 <cart-actions data-line="{{ forloop.index }}">
                                 <div class="custom-cart-drawer-item-product_actions">
                                     <div class="custom-cart-drawer-quantity-selector">
-                                        <button data-quantity={{ item.quantity | minus: 1 }} data-minus class="custom-cart-drawer-quantity_btn selector-button quantity_minus">
+                                        <button data-quantity="{{ item.quantity | minus: 1 }}" data-minus class="custom-cart-drawer-quantity_btn selector-button quantity_minus">
                                             {% render 'icon-minus' %}
                                         </button>
                                         <span class="custom-cart-drawer-quantity-value">{{ item.quantity }}</span>
-                                        <button data-quantity={{ item.quantity | plus: 1 }} data-plus class="custom-cart-drawer-quantity_btn selector-button quantity_plus">
+                                        <button data-quantity="{{ item.quantity | plus: 1 }}" data-plus class="custom-cart-drawer-quantity_btn selector-button quantity_plus">
                                             {% render 'icon-plus' %}
                                         </button>
                                     </div>
