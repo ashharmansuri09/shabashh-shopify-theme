@@ -11,6 +11,7 @@ class CustomCartDrawer extends HTMLElement {
     this.closeBtn = this.querySelector("[data-close]");
     this.innerContent = this.querySelector(".custom-cart-drawer-inner");
     document.addEventListener("cart:refresh", this.cartRefresh.bind(this));
+    this.cartCount = document.querySelector(".custom-cart-count");
 
     // Open drawer
     if (this.openTrigger) {
@@ -41,10 +42,18 @@ class CustomCartDrawer extends HTMLElement {
   }
   cartRefresh(e) {
      const fakeElement = document.createElement("div");
+     const fakeCartCount = document.createElement("div");
+
      const newHtml = e.detail.sections['custom-cart-drawer'];
+     const newCartCount = e.detail.sections['custom-cart-count'];
+
      fakeElement.innerHTML = newHtml;
+     fakeCartCount.innerHTML = newCartCount;
+
      this.querySelector(".custom-cart-drawer-body").innerHTML = fakeElement.querySelector(".custom-cart-drawer-body").innerHTML;
-    console.log(newHtml);
+
+     this.cartCount.innerHTML = fakeCartCount.querySelector(".custom-cart-count").innerHTML;
+
     this.open();
   }
 }
@@ -68,7 +77,7 @@ class AtcButton extends HTMLElement {
          'id': this.submitForm.querySelector("input[name='id']").value,
          'quantity': this.submitForm.querySelector("input[name='quantity']").value
          }],
-         'sections':'custom-cart-drawer'
+         'sections':'custom-cart-drawer,custom-cart-count'
        };
        
        fetch(window.Shopify.routes.root + 'cart/add.js', {
@@ -116,7 +125,7 @@ class CartActions extends HTMLElement{
        const formData = {
         'line': parseInt(this.dataset.line, 10),
         'quantity': parseInt(e.currentTarget.dataset.quantity, 10),
-        'sections':'custom-cart-drawer'
+        'sections':'custom-cart-drawer,custom-cart-count'
        }
        fetch(window.Shopify.routes.root + 'cart/change.js', {
         method: 'POST',
