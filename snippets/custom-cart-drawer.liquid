@@ -49,9 +49,51 @@ button.custom-cart-drawer-close svg {
 .custom-cart-drawer-item-product-details > * {
     margin: 0;
 }
+.custom-cart-drawer-quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 .custom-cart-drawer-item-product {
     display: flex;
     gap: 10px;
+    align-items:center;
+}
+.custom-cart-drawer-item-product_actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.selector-button{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: lightgray;
+    border: none;
+    cursor: pointer;
+}
+button.custom-cart-drawer-quantity_btn.quantity_minus svg,
+button.custom-cart-drawer-quantity_btn.quantity_plus svg {
+    width: 15px;
+}
+span.custom-cart-drawer-quantity-value {
+    width: 20px;
+    text-align: center;
+    font-size: 12px;
+}
+button.custom-cart-drawer-remove-item svg {
+    width: 15px;
+    color: red;
+}
+button.custom-cart-drawer-remove-item {
+    background: white;
+    border: none;
+    cursor: pointer;
+    align-self: end;
 }
 {% endstyle %}
 
@@ -63,6 +105,7 @@ button.custom-cart-drawer-close svg {
                {% render 'icon-close-button' %}
             </button>
         </div>
+
         <div class="custom-cart-drawer-body">
             {% if cart.item_count > 0 %}
                 <div class="custom-cart-drawer-items-list">
@@ -76,13 +119,32 @@ button.custom-cart-drawer-close svg {
                                     <h4>{{ item.product.title }}</h4>
                                     <p>{{ item.product.price | money }}</p>
                                 </div>
-                                <div class="custom-cart-drawer-item-product-quantity">
-                                    <p>{{ item.quantity }}</p>
+
+                                <cart-actions data-line="{{ forloop.index }}">
+                                <div class="custom-cart-drawer-item-product_actions">
+                                    <div class="custom-cart-drawer-quantity-selector">
+                                        <button data-quantity={{ item.quantity | minus: 1 }} data-minus class="custom-cart-drawer-quantity_btn selector-button quantity_minus">
+                                            {% render 'icon-minus' %}
+                                        </button>
+                                        <span class="custom-cart-drawer-quantity-value">{{ item.quantity }}</span>
+                                        <button data-quantity={{ item.quantity | plus: 1 }} data-plus class="custom-cart-drawer-quantity_btn selector-button quantity_plus">
+                                            {% render 'icon-plus' %}
+                                        </button>
+                                    </div>
+
+                                    <button data-quantity="0" data-remove class="custom-cart-drawer-remove-item">
+                                        {% render 'icon-remove' %}
+                                    </button>
                                     
                                 </div>
+                                </cart-actions>
                             </div>
                         </div>
                       {% endfor %}
+                </div>
+                <div class="custom-cart-drawer-total">
+                    <p>Total</p>
+                    <p>{{ cart.total_price | money }}</p>
                 </div>
             {% else %}
                <div class="custom-cart-drawer-empty">
