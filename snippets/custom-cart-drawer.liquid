@@ -57,7 +57,6 @@ button.custom-cart-drawer-close svg {
 .custom-cart-drawer-item-product {
     display: flex;
     gap: 10px;
-    align-items:center;
 }
 .custom-cart-drawer-item-product_actions {
     margin-left: auto;
@@ -98,6 +97,9 @@ button.custom-cart-drawer-remove-item {
 cart-actions{
     margin-left: auto;
 }
+.custom-cart-drawer-item-product-details p {
+    line-height: 1.3;
+}
 {% endstyle %}
 
 <custom-cart-drawer data-open-trigger="cart-icon-bubble" class="custom-cart-drawer custom-cart-drawer-overlay">
@@ -116,12 +118,19 @@ cart-actions{
                         <div class="custom-cart-drawer-item">
                             <div class="custom-cart-drawer-item-product">
                                 <a href="{{ item.url }}" class="custom-cart-drawer-item-product-link">
-                                    <img src="{{ item.image | image_url: width: 70 }}" alt="{{ item.image.alt }}" width="70" height="70">
+                                    <img src="{{ item.image | image_url: width: 100 }}" alt="{{ item.image.alt }}" width="100" height="100">
                                 </a>
                                 <div class="custom-cart-drawer-item-product-details">
                                     <h4>{{ item.product.title }}</h4>
+                                    {% unless item.product.has_only_default_variant %}
+                                        {% for option in item.options_with_values %}
+                                          <p>{{ option.name }}: {{ option.value }}</p>
+                                        {% endfor %}
+                                      {% endunless %}
+                                      
                                     <p>{{ item.product.price | money }}</p>
-                                </div>
+                                    
+                                  </div>
 
                                 <cart-actions data-line="{{ forloop.index }}">
                                 <div class="custom-cart-drawer-item-product_actions">
