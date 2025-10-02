@@ -1,0 +1,169 @@
+<script src="{{ 'custom-items.js' | asset_url }}" defer="defer"></script>
+{% style %}
+.custom-cart-drawer.custom-cart-drawer-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  transform:translateX(200%);
+  transition: transform 0.3s ease-in-out;
+}
+.custom-cart-drawer.is-active {
+  transform: translateX(0);
+}
+
+.drawer-open {
+  overflow: hidden; /* lock background scroll */
+}
+.custom-cart-drawer-inner {
+  background: white;
+  max-width: 375px;
+  width: 80%;
+  height: 100%;
+  padding: 0 15px;
+}
+  .custom-cart-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+.custom-cart-drawer-header h2 {
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+button.custom-cart-drawer-close{
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+button.custom-cart-drawer-close svg {
+    width: 20px;
+}
+.custom-cart-drawer-item-product-details > * {
+    margin: 0;
+}
+.custom-cart-drawer-quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.custom-cart-drawer-item-product {
+    display: flex;
+    gap: 10px;
+}
+.custom-cart-drawer-item-product_actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.selector-button{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: lightgray;
+    border: none;
+    cursor: pointer;
+}
+button.custom-cart-drawer-quantity_btn.quantity_minus svg,
+button.custom-cart-drawer-quantity_btn.quantity_plus svg {
+    width: 15px;
+}
+span.custom-cart-drawer-quantity-value {
+    width: 20px;
+    text-align: center;
+    font-size: 12px;
+}
+button.custom-cart-drawer-remove-item svg {
+    width: 15px;
+    color: red;
+}
+button.custom-cart-drawer-remove-item {
+    background: white;
+    border: none;
+    cursor: pointer;
+    align-self: end;
+}
+cart-actions{
+    margin-left: auto;
+}
+.custom-cart-drawer-item-product-details p {
+    line-height: 1.3;
+}
+{% endstyle %}
+
+<custom-cart-drawer data-open-trigger="cart-icon-bubble" class="custom-cart-drawer custom-cart-drawer-overlay">
+    <div class="custom-cart-drawer-inner">
+        <div class="custom-cart-drawer-header">
+            <h2>Cart</h2>
+            <button data-close  class="custom-cart-drawer-close">
+               {% render 'icon-close-button' %}
+            </button>
+        </div>
+
+        <div class="custom-cart-drawer-body">
+            {% if cart.item_count > 0 %}
+                <div class="custom-cart-drawer-items-list" data-line="{{ forloop.index }}">
+                      {% for item in cart.items %}
+                        <div class="custom-cart-drawer-item">
+                            <div class="custom-cart-drawer-item-product">
+                                <a href="{{ item.url }}" class="custom-cart-drawer-item-product-link">
+                                    <img src="{{ item.image | image_url: width: 100 }}" alt="{{ item.image.alt }}" width="100" height="100">
+                                </a>
+                                <div class="custom-cart-drawer-item-product-details">
+                                    <h4>{{ item.product.title }}</h4>
+                                    {% unless item.product.has_only_default_variant %}
+                                        {% for option in item.options_with_values %}
+                                          <p>{{ option.name }}: {{ option.value }}</p>
+                                        {% endfor %}
+                                      {% endunless %}
+                                      
+                                    <p>{{ item.product.price | money }}</p>
+                                    
+                                  </div>
+
+                                <cart-actions data-line="{{ forloop.index }}">
+                                <div class="custom-cart-drawer-item-product_actions">
+                                    <div class="custom-cart-drawer-quantity-selector">
+                                        <button data-quantity="{{ item.quantity | minus: 1 }}" data-minus class="custom-cart-drawer-quantity_btn selector-button quantity_minus">
+                                            {% render 'icon-minus' %}
+                                        </button>
+                                        <span class="custom-cart-drawer-quantity-value">{{ item.quantity }}</span>
+                                        <button data-quantity="{{ item.quantity | plus: 1 }}" data-plus class="custom-cart-drawer-quantity_btn selector-button quantity_plus">
+                                            {% render 'icon-plus' %}
+                                        </button>
+                                    </div>
+
+                                    <button data-quantity="0" data-remove class="custom-cart-drawer-remove-item">
+                                        {% render 'icon-remove' %}
+                                    </button>
+                                    
+                                </div>
+                                </cart-actions>
+                            </div>
+                        </div>
+                      {% endfor %}
+                </div>
+                <div class="custom-cart-drawer-total">
+                    <p>Total</p>
+                    <p>{{ cart.total_price | money }}</p>
+                </div>
+            {% else %}
+               <div class="custom-cart-drawer-empty">
+                <p>Your cart is empty</p>
+                <a href="{{ routes.all_products_collection_url }}" class="custom-cart-drawer-empty-button">Continue Shopping</a>
+               </div>
+            {% endif %}
+        </div>
+    </div>
+</custom-cart-drawer>
