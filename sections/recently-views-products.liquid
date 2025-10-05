@@ -5,8 +5,8 @@
   }
   .recently-viewed-grid {
     display: grid;
-    grid-template-columns: repeat(4,1fr);
-    gap: 15px;
+    grid-template-columns: repeat(5,1fr);
+    gap: 10px;
 }
 .recent-item img{
     width: 100%;
@@ -21,7 +21,7 @@
   }
 {%- endstyle -%}
 <section class="section-{{ section.id }}-padding">
-  <div class="page-width">
+  <div class="page-width-full">
     <h2 class="recently-views-products-title inline-richtext {{ section.settings.heading_size }}">{{ section.settings.title }}</h2>
         
         <recently-viewed-products class="recently-views-products-list">
@@ -92,7 +92,7 @@
     {
         "type": "inline_richtext",
         "id": "title",
-        "default": "t:sections.collection-list.settings.title.default",
+        "default": "Recently Viewed Products",
         "label": "t:sections.collection-list.settings.title.label"
       },
       {

@@ -1,0 +1,31 @@
+{{ 'component-text-banner.css' | asset_url | stylesheet_tag }}
+
+
+
+<section class="text-banner" id="text-banner">
+  <div class="page-width-full">
+    <div class="text-banner__content">
+      <div class="text-banner__text">
+         <h2>{{ section.settings.text }}</h2>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Text Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text Banner"
+    }
+  ]
+}
+{% endschema %}
