@@ -10,23 +10,132 @@
     color: #fff;
     border: none;
     cursor: pointer;
+    width: 100%;
+}
+button.custom-product-add-to-cart:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 {% endstyle %}
 <atc-button>
 {% form 'product',product %}
-    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-            <input type="hidden" name="quantity" value="1">
-            <button class="custom-product-add-to-cart"
-              type="submit"
-              {% unless product.selected_or_first_available_variant.available %}
-                disabled
-              {% endunless %}
-            >
-              {% if product.selected_or_first_available_variant.available %}
-                Add to Cart
-              {% else %}
-                Sold Out
-              {% endif %}
-            </button>
+    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" id="variant-id-input">
+    <input type="hidden" name="quantity" value="1">
+    <button class="custom-product-add-to-cart"
+      type="submit"
+      {% unless product.selected_or_first_available_variant.available %}
+        disabled
+      {% endunless %}
+    >
+      {% if product.selected_or_first_available_variant.available %}
+        Add to Cart
+      {% else %}
+        Sold Out
+      {% endif %}
+    </button>
 {% endform %}
 </atc-button>
+
+<script>
+  class AtcButton extends HTMLElement {
+    constructor() {
+      super();
+      this.form = null;
+      this.variantInput = null;
+      this.submitButton = null;
+      this.variantPicker = null;
+    }
+
+    connectedCallback() {
+      this.form = this.querySelector('form');
+      this.variantInput = this.querySelector('#variant-id-input');
+      this.submitButton = this.querySelector('.custom-product-add-to-cart');
+      
+      // Find the variant picker in the modal
+      this.variantPicker = this.closest('.custom-product-modal')?.querySelector('variant-picker-modal');
+      
+      if (this.variantPicker) {
+        // Listen for variant changes
+        this.variantPicker.addEventListener('variant-change', (e) => {
+          this.updateVariantId(e.detail.variant);
+        });
+      }
+
+      // Handle form submission
+      this.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleAddToCart();
+      });
+    }
+
+    updateVariantId(variantId) {
+      if (this.variantInput && variantId) {
+        this.variantInput.value = variantId;
+      }
+    }
+
+    async handleAddToCart() {
+      if (!this.submitButton) return;
+
+      // Disable button during submission
+      this.submitButton.disabled = true;
+      this.submitButton.textContent = 'Adding...';
+
+      try {
+        const formData = new FormData(this.form);
+        
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        if (response.ok) {
+          // Success - close modal and show success message
+          this.showSuccessMessage();
+          this.closeModal();
+          
+          // Dispatch cart update event
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        } else {
+          // Error handling
+          const error = await response.json();
+          console.error('Add to cart error:', error);
+          this.showErrorMessage();
+        }
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        this.showErrorMessage();
+      } finally {
+        // Re-enable button
+        this.submitButton.disabled = false;
+        this.submitButton.textContent = 'Add to Cart';
+      }
+    }
+
+    showSuccessMessage() {
+      // You can customize this success message
+      console.log('Product added to cart successfully!');
+    }
+
+    showErrorMessage() {
+      // You can customize this error message
+      console.error('Failed to add product to cart');
+    }
+
+    closeModal() {
+      // Find and close the modal
+      const modal = this.closest('.custom-product-modal');
+      if (modal) {
+        const productModal = document.querySelector('product-modal');
+        if (productModal) {
+          productModal.close();
+        }
+      }
+    }
+  }
+
+  customElements.define('atc-button', AtcButton);
+</script>
