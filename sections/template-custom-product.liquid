@@ -202,7 +202,7 @@
       <gallary-thumbnails class="custom-product-images">
         {% if product.media.size > 0 %}
           <div class="custom-product-images_thumbnails">
-            {% render 'custom-product-thumbnails', product %}
+            {% render 'custom-product-thumbnails' %}
           </div>
         {% endif %}
 
@@ -485,3 +485,13 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{% render 'custom-product-thumbnails', product %}"
+  to: "{% render 'custom-product-thumbnails' %}"
+  position: 5073..5113
+{% endcomment %}
